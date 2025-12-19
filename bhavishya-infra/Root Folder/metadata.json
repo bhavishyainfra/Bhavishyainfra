@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Bhavishya Infra",
+  "description": "A premium, high-performance construction company website for Bhavishya Infra featuring an AI-powered project consultant and dynamic portfolio showcasing modern architectural excellence.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

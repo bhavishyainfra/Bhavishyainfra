@@ -1,0 +1,46 @@
+
+import { GoogleGenAI, Type } from "@google/genai";
+import { EstimationResult } from "../types";
+
+const MODEL_NAME = 'gemini-3-flash-preview';
+
+export const getProjectConsultation = async (prompt: string): Promise<EstimationResult> => {
+  // Always use process.env.API_KEY directly as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: `You are an expert construction project consultant. A user wants to build something and has provided the following description: "${prompt}". 
+      Analyze the requirements and provide a professional consultation including a summary, suggested materials, estimated timeline, and potential challenges.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            summary: { type: Type.STRING, description: "Executive summary of the project consultation." },
+            suggestedMaterials: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING },
+              description: "List of materials needed."
+            },
+            estimatedTimeline: { type: Type.STRING, description: "A realistic timeline estimate." },
+            potentialChallenges: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING },
+              description: "Key risks and challenges to consider."
+            }
+          },
+          required: ["summary", "suggestedMaterials", "estimatedTimeline", "potentialChallenges"]
+        }
+      }
+    });
+
+    // Extracting text from the response using the .text property
+    const text = response.text || "{}";
+    return JSON.parse(text) as EstimationResult;
+  } catch (error) {
+    console.error("Gemini AI error:", error);
+    throw new Error("Failed to generate consultation. Please check your API key.");
+  }
+};
